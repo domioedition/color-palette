@@ -13,8 +13,6 @@ use ColorContrast\ColorContrast;
 use ColorThief\ColorThief;
 
 
-
-
 // use Breadthe\PhpContrast\HexColor; // factory
 
 // use Breadthe\PhpContrast\HexColorPair; // hex pair utilities
@@ -42,7 +40,7 @@ use ColorThief\ColorThief;
 
 
 if ($_SERVER['REQUEST_METHOD'] === "POST") {
-    $uploadDir = './uploads/';
+    $uploadDir = __DIR__ . '/uploads/';
     $uploadFile = $uploadDir . basename($_FILES['imageFile']['name']);
 //    echo '<pre>';
     if (move_uploaded_file($_FILES['imageFile']['tmp_name'], $uploadFile)) {
@@ -59,20 +57,13 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
 $ratio = $_GET['ratio'] ?? 7;
 $colorsQuantity = $_GET['colorsQuantity'] ?? 5;
 
- $sourceImage = 'uploads/' . basename(file_get_contents('file_info.txt'));
- if (!file_exists($sourceImage)) {
-     $sourceImage = 'bulb.jpeg';
- }
+$sourceImage = 'uploads/' . basename(file_get_contents('file_info.txt'));
+if (!file_exists($sourceImage)) {
+    $sourceImage = 'bulb.jpeg';
+}
 
- $dominantColor = ColorThief::getColor($sourceImage, 1, null, 'hex');
-// $palette = ColorThief::getPalette($sourceImage, 8);
-// var_dump($sourceImage);die;
-
-
+$dominantColor = ColorThief::getColor($sourceImage, 1, null, 'hex');
 $palette = ColorThief::getPalette($sourceImage, $colorsQuantity, 1, null, 'hex');
-
-// var_dump($palette);
-
 
 ?>
 
@@ -94,7 +85,7 @@ $palette = ColorThief::getPalette($sourceImage, $colorsQuantity, 1, null, 'hex')
     <div class="row">
         <div class="col-lg-4">
             <?php
-                echo '<img src="' . $sourceImage . '" />';
+            echo '<img src="' . $sourceImage . '" />';
             ?>
             <form action="" method="POST" enctype="multipart/form-data">
                 <div class="form-group">
@@ -109,8 +100,9 @@ $palette = ColorThief::getPalette($sourceImage, $colorsQuantity, 1, null, 'hex')
             <form action="" method="GET">
                 <div class="form-group">
                     <label for="colorsQuantity">Colors quantity</label>
-                    <input type="text" class="form-control" id="colorsQuantity" aria-describedby="colorsQuantity"
-                           placeholder="Enter colors quantity" value="<?=$colorsQuantity?>" name="colorsQuantity">
+                    <input type="number" min="3" max="20" class="form-control" id="colorsQuantity"
+                           aria-describedby="colorsQuantity"
+                           placeholder="Enter colors quantity" value="<?= $colorsQuantity ?>" name="colorsQuantity">
                     <small id="emailHelp" class="form-text text-muted">Please enter colors quantity</small>
                 </div>
                 <div class="form-group">
@@ -131,7 +123,8 @@ $palette = ColorThief::getPalette($sourceImage, $colorsQuantity, 1, null, 'hex')
             <h4>Dominant color</h4>
             <table class="table">
                 <tr>
-                    <td style="background: <?=$dominantColor?>; width:36px;"></td><td><?=$dominantColor?></td>
+                    <td style="background: <?= $dominantColor ?>; width:36px;"></td>
+                    <td><?= $dominantColor ?></td>
                 </tr>
             </table>
             <h4>Color palette</h4>
@@ -154,6 +147,10 @@ $palette = ColorThief::getPalette($sourceImage, $colorsQuantity, 1, null, 'hex')
             $contrast->addColors($palette);
             $combinations = $contrast->getCombinations($ratio);
 
+
+//            $a = $contrast->complimentaryTheme($dominantColor);
+//            var_dump($a);
+//            die;
 
             // var_dump($combinations);die;
 
@@ -240,9 +237,20 @@ $palette = ColorThief::getPalette($sourceImage, $colorsQuantity, 1, null, 'hex')
 
             <div id="textExample" style="display: none">
                 <h1>Lorem ipsum dolor sit amet.</h1>
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus blanditiis dolores eius excepturi omnis quo! Adipisci enim fuga fugiat iste labore omnis, optio voluptas? Dolore esse est ex omnis quia! Aliquam aperiam asperiores atque autem corporis debitis deserunt dolor esse et in ipsum itaque labore minima mollitia nemo officia officiis perferendis, perspiciatis praesentium quia quisquam rerum sint sunt totam ullam ut vitae voluptatem! A aperiam at atque consectetur culpa deleniti earum eius esse eveniet harum, ipsa nesciunt nihil odio optio pariatur quisquam, reiciendis rem temporibus vel voluptatum! Atque commodi deleniti eligendi et facilis maxime numquam odit, omnis quibusdam rerum tenetur?</p>
-                <h4>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Expedita, laboriosam, totam! Inventore ipsam magnam officia?</h4>
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus adipisci aliquam asperiores aspernatur aut, commodi consectetur corporis dolor doloremque dolores, doloribus eaque eligendi ex explicabo facilis fugit hic illo impedit inventore ipsa maiores modi molestias mollitia natus nobis odio odit officiis omnis praesentium quis reiciendis rem similique soluta voluptate voluptatum.</p>
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus blanditiis dolores eius excepturi
+                    omnis quo! Adipisci enim fuga fugiat iste labore omnis, optio voluptas? Dolore esse est ex omnis
+                    quia! Aliquam aperiam asperiores atque autem corporis debitis deserunt dolor esse et in ipsum itaque
+                    labore minima mollitia nemo officia officiis perferendis, perspiciatis praesentium quia quisquam
+                    rerum sint sunt totam ullam ut vitae voluptatem! A aperiam at atque consectetur culpa deleniti earum
+                    eius esse eveniet harum, ipsa nesciunt nihil odio optio pariatur quisquam, reiciendis rem temporibus
+                    vel voluptatum! Atque commodi deleniti eligendi et facilis maxime numquam odit, omnis quibusdam
+                    rerum tenetur?</p>
+                <h4>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Expedita, laboriosam, totam! Inventore
+                    ipsam magnam officia?</h4>
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus adipisci aliquam asperiores
+                    aspernatur aut, commodi consectetur corporis dolor doloremque dolores, doloribus eaque eligendi ex
+                    explicabo facilis fugit hic illo impedit inventore ipsa maiores modi molestias mollitia natus nobis
+                    odio odit officiis omnis praesentium quis reiciendis rem similique soluta voluptate voluptatum.</p>
             </div>
 
         </div>
@@ -262,7 +270,7 @@ $palette = ColorThief::getPalette($sourceImage, $colorsQuantity, 1, null, 'hex')
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
 <script type="application/javascript">
-    function showProposedColors(rowWithColors){
+    function showProposedColors(rowWithColors) {
         let colors = rowWithColors.innerHTML.match(/[a-f0-9]{6}/gi)
         let textExample = document.getElementById("textExample");
         textExample.style.backgroundColor = "#" + colors[2];
