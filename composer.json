@@ -1,0 +1,9 @@
+{
+    "require": {
+        "ksubileau/color-thief-php": "^2.0",
+        "davidgorges/color-contrast": "^1.0",
+        "breadthe/php-contrast": "^0.2.0",
+        "davidvandertuijn/color-contrast": "^1.1",
+        "harmstyler/contrast-ratio-calculator": "^1.0"
+    }
+}
