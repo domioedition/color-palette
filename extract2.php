@@ -39,36 +39,37 @@ use ColorThief\ColorThief;
 // echo $rating->rateContrastRatio($contrastRatio); // the WCAGContrast grade, either 'fail', 'aa-large', 'aa', or 'aaa'
 // die("STOP");
 // print_r($_POST);
-print_r($_FILES);
 
-$sourceImage = null;
+
+if ($_SERVER['REQUEST_METHOD'] === "POST") {
+    $uploadDir = './uploads/';
+    $uploadFile = $uploadDir . basename($_FILES['imageFile']['name']);
+//    echo '<pre>';
+    if (move_uploaded_file($_FILES['imageFile']['tmp_name'], $uploadFile)) {
+//        echo "File is valid, and was successfully uploaded.\n";
+        file_put_contents('file_info.txt', $uploadFile);
+    } else {
+//        echo "Possible file upload attack!\n";
+    }
+//    echo 'Here is some more debugging info:';
+//    print_r($_FILES);
+//    print "</pre>";
+}
+
 $ratio = $_GET['ratio'] ?? 7;
-$colorsQuantity = $_GET['colorsQuantity'] ?? 10;
+$colorsQuantity = $_GET['colorsQuantity'] ?? 5;
 
+ $sourceImage = 'uploads/' . basename(file_get_contents('file_info.txt'));
+ if (!file_exists($sourceImage)) {
+     $sourceImage = 'bulb.jpeg';
+ }
 
-$sourceImage = $_FILES['full_path'] ?? null;
-
-
-// $ratio = match(){
-//   ColorContrast::MIN_CONTRAST_AAA => 7,
-//   ColorContrast::MIN_CONTRAST_AA_LARGE => 3,
-//   ColorContrast::MIN_CONTRAST_AAA_LARGE => 4.5,
-//   default =>7
-// }
-
-
- $sourceImage = 'download_1.png';
-//$sourceImage = 'my_image.jpeg';
-// $sourceImage = $file;
-
-
-// $dominantColor = ColorThief::getColor($sourceImage);
-// var_dump($dominantColor);
-
-
+ $dominantColor = ColorThief::getColor($sourceImage, 1, null, 'hex');
 // $palette = ColorThief::getPalette($sourceImage, 8);
 // var_dump($sourceImage);die;
-$palette = ColorThief::getPalette($sourceImage, $colorCount = $colorsQuantity, $quality = 1, $area = null, $outputFormat = 'hex', null);
+
+
+$palette = ColorThief::getPalette($sourceImage, $colorsQuantity, 1, null, 'hex');
 
 // var_dump($palette);
 
@@ -85,16 +86,26 @@ $palette = ColorThief::getPalette($sourceImage, $colorCount = $colorsQuantity, $
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-
+    <link rel="stylesheet" href="mystyle.css">
     <title>Extract colors!</title>
 </head>
 <body>
 <div class="container-fluid">
     <div class="row">
-        <div class="col">
+        <div class="col-lg-4">
+            <?php
+                echo '<img src="' . $sourceImage . '" />';
+            ?>
+            <form action="" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="exampleFormControlFile1">Please upload file</label>
+                    <input type="file" class="form-control-file" id="exampleFormControlFile1" name="imageFile">
+                </div>
+                <button type="submit" class="btn btn-primary">Upload file</button>
+            </form>
 
+            <h4 class="mt-5">Configuration</h4>
 
-            <!-- <form action="" method="GET" enctype="multipart/form-data"> -->
             <form action="" method="GET">
                 <div class="form-group">
                     <label for="colorsQuantity">Colors quantity</label>
@@ -102,12 +113,6 @@ $palette = ColorThief::getPalette($sourceImage, $colorCount = $colorsQuantity, $
                            placeholder="Enter colors quantity" value="<?=$colorsQuantity?>" name="colorsQuantity">
                     <small id="emailHelp" class="form-text text-muted">Please enter colors quantity</small>
                 </div>
-
-                <!-- <div class="form-group">
-                  <label for="exampleFormControlFile1">Example file input</label>
-                  <input type="file" class="form-control-file" id="exampleFormControlFile1" name="imageFile">
-                </div> -->
-
                 <div class="form-group">
                     <label for="ratio">Ratio</label>
                     <select class="form-control" id="ratio" name="ratio">
@@ -116,35 +121,32 @@ $palette = ColorThief::getPalette($sourceImage, $colorCount = $colorsQuantity, $
                         <option value="3">3</option>
                     </select>
                 </div>
-                <!-- <div class="form-check">
-                  <input type="checkbox" class="form-check-input" id="exampleCheck1">
-                  <label class="form-check-label" for="exampleCheck1">Check me out</label>
-                </div> -->
                 <button type="submit" class="btn btn-primary">Submit</button>
-                <!-- <input type="submit" class="btn btn-primary"> -->
             </form>
 
-            <div class="row">
-                <div class="col-lg-8">
-                    <?php
-                        echo '<img src="' . $sourceImage . '" />';
-                    ?>
-                </div>
-                <div class="col-lg-4">
-                    <h4>Color palette</h4>
-                    <?php
-                    echo '<table>';
-                    foreach ($palette as $color) {
+        </div>
+        <div class="col-lg-2">
 
-                        echo '<tr><td style="background:' . $color . '; width:36px;"></td><td>' . $color . '</td></tr>';
-                    }
-                    echo '</table>';
-                    ?>
-                </div>
-            </div>
+
+            <h4>Dominant color</h4>
+            <table class="table">
+                <tr>
+                    <td style="background: <?=$dominantColor?>; width:36px;"></td><td><?=$dominantColor?></td>
+                </tr>
+            </table>
+            <h4>Color palette</h4>
+            <?php
+            echo '<table class="table table-hover">';
+            foreach ($palette as $color) {
+
+                echo '<tr><td style="background:' . $color . '; width:36px;"></td><td>' . $color . '</td></tr>';
+            }
+            echo '</table>';
+            ?>
 
         </div>
-        <div class="col">
+        <div class="col-lg-6">
+            <h4>The contrast calculation based on the WCAG 2.0.</h4>
             <?php
 
 
@@ -168,7 +170,7 @@ $palette = ColorThief::getPalette($sourceImage, $colorCount = $colorsQuantity, $
             // var_dump($result);die;
             // arsort($combinations);
 
-            echo '<table class="table">';
+            echo '<table class="table table-hover">';
             foreach ($combinations as $combination) {
 
 
@@ -177,7 +179,7 @@ $palette = ColorThief::getPalette($sourceImage, $colorCount = $colorsQuantity, $
                 // var_dump($combination->getBackground());die;
                 // printf("#%s on the Background color #%s has a contrast value of %f \n", $combination->getForeground(), $combination->getBackground(), $combination->getContrast());
 
-                echo '<tr>
+                echo '<tr onclick="showProposedColors(this)">
                 <td style="background: #' . $combination->getForeground() . '; width:36px;"></td><td> Text color #' . $combination->getForeground() . ' on the Background color </td>
                 <td style="background: #' . $combination->getBackground() . '; width:36px;"></td><td>#' . $combination->getBackground() . '</td>
                 <td>has a contrast value of ' . $combination->getContrast() . '</td>
@@ -234,6 +236,15 @@ $palette = ColorThief::getPalette($sourceImage, $colorCount = $colorsQuantity, $
             // var_dump($y);
 
             ?>
+
+
+            <div id="textExample" style="display: none">
+                <h1>Lorem ipsum dolor sit amet.</h1>
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus blanditiis dolores eius excepturi omnis quo! Adipisci enim fuga fugiat iste labore omnis, optio voluptas? Dolore esse est ex omnis quia! Aliquam aperiam asperiores atque autem corporis debitis deserunt dolor esse et in ipsum itaque labore minima mollitia nemo officia officiis perferendis, perspiciatis praesentium quia quisquam rerum sint sunt totam ullam ut vitae voluptatem! A aperiam at atque consectetur culpa deleniti earum eius esse eveniet harum, ipsa nesciunt nihil odio optio pariatur quisquam, reiciendis rem temporibus vel voluptatum! Atque commodi deleniti eligendi et facilis maxime numquam odit, omnis quibusdam rerum tenetur?</p>
+                <h4>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Expedita, laboriosam, totam! Inventore ipsam magnam officia?</h4>
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus adipisci aliquam asperiores aspernatur aut, commodi consectetur corporis dolor doloremque dolores, doloribus eaque eligendi ex explicabo facilis fugit hic illo impedit inventore ipsa maiores modi molestias mollitia natus nobis odio odit officiis omnis praesentium quis reiciendis rem similique soluta voluptate voluptatum.</p>
+            </div>
+
         </div>
     </div>
 </div>
@@ -250,5 +261,14 @@ $palette = ColorThief::getPalette($sourceImage, $colorCount = $colorsQuantity, $
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
+<script type="application/javascript">
+    function showProposedColors(rowWithColors){
+        let colors = rowWithColors.innerHTML.match(/[a-f0-9]{6}/gi)
+        let textExample = document.getElementById("textExample");
+        textExample.style.backgroundColor = "#" + colors[2];
+        textExample.style.color = "#" + colors[0];
+        textExample.style.display = "block";
+    }
+</script>
 </body>
 </html>
