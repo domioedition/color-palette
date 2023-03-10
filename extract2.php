@@ -12,33 +12,6 @@ require_once 'vendor/autoload.php';
 use ColorContrast\ColorContrast;
 use ColorThief\ColorThief;
 
-
-// use Breadthe\PhpContrast\HexColor; // factory
-
-// use Breadthe\PhpContrast\HexColorPair; // hex pair utilities
-
-// use Breadthe\PhpContrast\TailwindColor; // Tailwind color pair utilities
-
-
-// use HarmsTyler\ContrastRatioCalculator\Color;
-// use HarmsTyler\ContrastRatioCalculator\ContrastRatio;
-// use HarmsTyler\ContrastRatioCalculator\WCAGContrastRating;
-
-// $primaryColor = new Color();
-// $primaryColor->setHex('#ecaada');
-// $secondaryColor = new Color();
-// $secondaryColor->setHex('#000000');
-
-// $contrastRatio = new ContrastRatio($primaryColor, $secondaryColor);
-
-// echo $contrastRatio->getRatio(); // floating decimal point of calculated ratio
-
-// $rating = new WCAGContrastRating();
-// echo $rating->rateContrastRatio($contrastRatio); // the WCAGContrast grade, either 'fail', 'aa-large', 'aa', or 'aaa'
-// die("STOP");
-// print_r($_POST);
-
-
 if ($_SERVER['REQUEST_METHOD'] === "POST") {
     $uploadDir = __DIR__ . '/uploads/';
     $uploadFile = $uploadDir . basename($_FILES['imageFile']['name']);
@@ -144,93 +117,94 @@ $palette = ColorThief::getPalette($sourceImage, $colorsQuantity, 1, null, 'hex')
 
 
             $contrast = new ColorContrast();
-            $contrast->addColors($palette);
+            try {
+                $contrast->addColors($palette);
+            } catch (\ColorContrast\Exception\InvalidColorException $e) {
+                die($e->getMessage());
+            }
             $combinations = $contrast->getCombinations($ratio);
 
 
-//            $a = $contrast->complimentaryTheme($dominantColor);
-//            var_dump($a);
-//            die;
-
-            // var_dump($combinations);die;
-
-            // $result = [];
-            // foreach ($combinations as $combination) {
-            //   $result[] = [
-            //     'color' => $combination->getForeground(),
-            //     'background' => $combination->getBackground(),
-            //     'contrast' => $combination->getContrast()
-            //   ];
-            // }
-
-
-            // var_dump($result);die;
-            // arsort($combinations);
-
             echo '<table class="table table-hover">';
             foreach ($combinations as $combination) {
-
-
-                // echo $combination->getContrast();die;
-
-                // var_dump($combination->getBackground());die;
-                // printf("#%s on the Background color #%s has a contrast value of %f \n", $combination->getForeground(), $combination->getBackground(), $combination->getContrast());
-
                 echo '<tr onclick="showProposedColors(this)">
                 <td style="background: #' . $combination->getForeground() . '; width:36px;"></td><td> Text color #' . $combination->getForeground() . ' on the Background color </td>
                 <td style="background: #' . $combination->getBackground() . '; width:36px;"></td><td>#' . $combination->getBackground() . '</td>
                 <td>has a contrast value of ' . $combination->getContrast() . '</td>
               </tr>';
-                // printf("#%s on the Background color #%s has a contrast value of %f \n", $combination->getForeground(), $combination->getBackground(), $combination->getContrast());
             }
             echo '</table>';
 
-            // $hexColorPair = HexColorPair::make(HexColor::make('000000'), HexColor::make('ffffff'));
-            // $hexColorPair->ratio; // 21
-            // $hexColorPair->fg; // '#000000'
-            // $hexColorPair->bg; // '#ffffff'
 
-            // $twColor = TailwindColor::random();
-            // $twColor->hex; // '#e2e8f0'
-            // $twColor->name; // 'gray-300'
+            /**
+             * https://packagist.org/packages/harmstyler/contrast-ratio-calculator
+             */
 
-            // $twColorpair = TailwindColor::minContrast(4.5)->getRandomPair();
-            // $twColorpair->ratio; // 7.0
-            // $twColorpair->fg->hex; // '#faf5ff'
-            // $twColorpair->fg->name; // 'purple-100'
-            // $twColorpair->bg->hex; // '#9b2c2c'
-            // $twColorpair->bg->name; // 'red-800'
+            use HarmsTyler\ContrastRatioCalculator\Color;
+            use HarmsTyler\ContrastRatioCalculator\ContrastRatio;
+            use HarmsTyler\ContrastRatioCalculator\WCAGContrastRating;
 
+            echo '<h4>Lib 1: Contrast ratios of colors as well as rates the contrast ratio against WCAG standards.</h4><table class="table table-bordered">';
+            $colorsCount = count($palette);
+            for ($i = 0; $i <= $colorsCount; $i++) {
+                $primaryColor = new Color();
+                $secondaryColor = new Color();
+                $primaryColor->setHex($palette[$i]);
+                if ($i + 1 === $colorsCount) {
+                    break;
+                }
+                $secondaryColor->setHex($palette[$i + 1]);
+                $contrastRatio = new ContrastRatio($primaryColor, $secondaryColor);
+                $rating = new WCAGContrastRating();
+                //                if($rating->rateContrastRatio($contrastRatio) === WCAGContrastRating::AAA) {
+                echo '<tr>
+                                    <td style="background:' . $primaryColor->getHex() . '; width:36px;"></td><td>' . $primaryColor->getHex() . '</td>
+                                    <td style="background:' . $secondaryColor->getHex() . '; width:36px;"></td><td>' . $secondaryColor->getHex() . '</td>
+                                    <td>Calculated ratio: ' . $contrastRatio->getRatio() . '</td>
+                                    <td>WCAGContrast grade: <b>' . $rating->rateContrastRatio($contrastRatio) . '</b></td>
+                                  </tr>';
+                //                }
 
-            // // var_dump($twColorpair);
-
-
-            // // Minimum 3:1 contrast ratio
-
-            // $siblings = [];
-            // // $color = '1a91d2';
-            // for($i=0; $i<10; $i++){
-            //   $siblings[] = HexColorPair::sibling('1a91d2')->hex;
-            //   $siblings[] = HexColorPair::sibling('1a91d2')->hex;
-            //   $siblings[] = HexColorPair::sibling('1a91d2')->hex;
-            //   $siblings[] = HexColorPair::sibling('1a91d2')->hex;
-            //   $siblings[] = HexColorPair::sibling('1a91d2')->hex;
-            // }
-            // // print_r($siblings);
-
-            // echo '<table>';
-            // foreach($siblings as $color) {
-
-            //   echo '<tr><td style="background:' . $color . '; width:36px;"></td><td>' . $color . '</td></tr>';
-            // }
-            // echo '</table>';
+            }
+            echo '</table>';
 
 
-            // var_dump($x);
-            // // Minimum specified contrast ratio (no less than 3:1)
-            // $y = HexColorPair::minContrast(4.5)->getSibling('000000')->hex; // '#ffffff'
+            /**
+             * https://github.com/breadthe/php-contrast
+             */
 
-            // var_dump($y);
+            use Breadthe\PhpContrast\HexColor;
+
+            // factory
+            use Breadthe\PhpContrast\HexColorPair;
+
+            // hex pair utilities
+            use Breadthe\PhpContrast\TailwindColor;
+
+            // Tailwind color pair utilities
+
+            echo '<h4>Lib 2: Contrast ratios of colors as well as rates the contrast ratio against WCAG standards.</h4><table class="table table-bordered">';
+            $colorsCount = count($palette);
+            for ($i = 0; $i <= $colorsCount; $i++) {
+                if ($i + 1 === $colorsCount) {
+                    break;
+                }
+                $hexColorPair = HexColorPair::make(HexColor::make($palette[$i]), HexColor::make($palette[$i + 1]));
+                echo '<tr>
+                        <td style="background:' . $hexColorPair->fg->hex . '; width:36px;"></td><td>' . $hexColorPair->fg->hex . '</td>
+                        <td style="background:' . $hexColorPair->bg->hex . '; width:36px;"></td><td>' . $hexColorPair->bg->hex . '</td>
+                        <td>Calculated ratio: ' . $hexColorPair->ratio . '</td>
+                      </tr>';
+
+                $color = HexColorPair::minContrast(4.5)->getSibling($palette[$i])->hex;
+                //Get a random accessible sibling for the given color, with minimum specified contrast ratio 4.5
+//                echo '<tr>
+//                        <td style="background:' . $palette[$i] . '; width:36px;"></td><td>' . $palette[$i] . '</td>
+//                        <td style="background:' . $color . '; width:36px;"></td><td>' . $color . '</td>
+//                      </tr>';
+
+            }
+
 
             ?>
 
