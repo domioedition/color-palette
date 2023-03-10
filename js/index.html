@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+<!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.0/color-thief.umd.js"></script>-->
+</head>
+<body>
+<img src="plate.jpg" alt="Plate">
+<script src="./node_modules/lodash/lodash.js"></script>
+<script src="node_modules/colorthief/dist/color-thief.umd.js"></script>
+<script src="node_modules/wcag-contrast/dist/index.umd.js"></script>
+<script>
+
+    const colorThief = new ColorThief();
+
+    const img = document.querySelector('img');
+    let color = null;
+    let palette = null;
+    // Make sure image is finished loading
+    if (img.complete) {
+        color = colorThief.getColor(img, 1);
+        palette = colorThief.getPalette(img, 10, 1);
+    } else {
+        img.addEventListener('load', function() {
+            colorThief.getColor(img);
+        });
+    }
+
+    const rgbToHex = (r, g, b) => '#' + [r, g, b].map(x => {
+        const hex = x.toString(16)
+        return hex.length === 1 ? '0' + hex : hex
+    }).join('')
+
+    // console.log(color);
+    console.log(palette);
+
+    hexPallete = []
+    let hexColor;
+    for (const element of palette) {
+        hexColor = rgbToHex(element[0], element[1], element[2])
+        hexPallete.push(hexColor)
+    }
+    console.log(hexPallete);
+
+    a = hex(hexPallete[0], hexPallete[1]);
+    console.log(a);
+
+
+    // let ccc = new ();
+    //
+    // var color1 = "#FFFFFF";
+    // var color2 = "#000000";
+    //
+    // if (ccc.isLevelAA(color1, color2, 14)) {
+    //     alert("Valid Level AA");
+    // } else {
+    //     alert("Invalid Contrast");
+    // }
+
+
+</script>
+<!--<script src="main.js"></script>-->
+
+</body>
+</html>

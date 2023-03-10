@@ -1,0 +1,21 @@
+{
+  "dependencies": {
+    "@mdhnpm/wcag-contrast-checker": "^1.1.0",
+    "bridge-pca": "^0.1.6",
+    "color-contrast-checker": "^2.1.0",
+    "color-contrast-table": "^4.0.0",
+    "colorthief": "^2.4.0",
+    "lodash": "^4.17.21",
+    "wcag-contrast": "^3.0.0"
+  },
+  "name": "js",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
