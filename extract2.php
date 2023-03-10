@@ -156,7 +156,7 @@ $palette = ColorThief::getPalette($sourceImage, $colorsQuantity, 1, null, 'hex')
                     $secondaryColor->setHex($palette[$i]);
                     $contrastRatio = new ContrastRatio($primaryColor, $secondaryColor);
                     $rating = new WCAGContrastRating();
-                    if($rating->rateContrastRatio($contrastRatio) === WCAGContrastRating::AAA ||
+                    if ($rating->rateContrastRatio($contrastRatio) === WCAGContrastRating::AAA ||
                         $rating->rateContrastRatio($contrastRatio) === WCAGContrastRating::AA &&
                         $contrastRatio->getRatio() >= $ratio) {
                         echo '<tr>
@@ -166,48 +166,51 @@ $palette = ColorThief::getPalette($sourceImage, $colorsQuantity, 1, null, 'hex')
                                 <td>Calculated ratio: ' . $contrastRatio->getRatio() . '</td>
                                 <td>WCAGContrast grade: <b>' . $rating->rateContrastRatio($contrastRatio) . '</b></td>
                               </tr>';
-                        }
+                    }
                     ++$rowCount;
                 }
             }
             echo '</table>';
 
 
-            //            /**
-            //             * https://github.com/breadthe/php-contrast
-            //             */
-            //
-            //            use Breadthe\PhpContrast\HexColor;
-            //
-            //            // factory
-            //            use Breadthe\PhpContrast\HexColorPair;
-            //
-            //            // hex pair utilities
-            //            use Breadthe\PhpContrast\TailwindColor;
-            //
-            //            // Tailwind color pair utilities
-            //
-            //            echo '<h4>Lib 2: Contrast ratios of colors as well as rates the contrast ratio against WCAG standards.</h4><table class="table table-bordered">';
-            //            $colorsCount = count($palette);
-            //            for ($i = 0; $i <= $colorsCount; $i++) {
-            //                if ($i + 1 === $colorsCount) {
-            //                    break;
-            //                }
-            //                $hexColorPair = HexColorPair::make(HexColor::make($palette[$i]), HexColor::make($palette[$i + 1]));
-            //                echo '<tr>
-            //                        <td style="background:' . $hexColorPair->fg->hex . '; width:36px;"></td><td>' . $hexColorPair->fg->hex . '</td>
-            //                        <td style="background:' . $hexColorPair->bg->hex . '; width:36px;"></td><td>' . $hexColorPair->bg->hex . '</td>
-            //                        <td>Calculated ratio: ' . $hexColorPair->ratio . '</td>
-            //                      </tr>';
-            //
-            //                $color = HexColorPair::minContrast(4.5)->getSibling($palette[$i])->hex;
-            //                //Get a random accessible sibling for the given color, with minimum specified contrast ratio 4.5
-            ////                echo '<tr>
-            ////                        <td style="background:' . $palette[$i] . '; width:36px;"></td><td>' . $palette[$i] . '</td>
-            ////                        <td style="background:' . $color . '; width:36px;"></td><td>' . $color . '</td>
-            ////                      </tr>';
-            //
-            //            }
+            /**
+             * https://github.com/breadthe/php-contrast
+             */
+
+            use Breadthe\PhpContrast\HexColor;
+
+            // factory
+            use Breadthe\PhpContrast\HexColorPair;
+
+            // hex pair utilities
+            use Breadthe\PhpContrast\TailwindColor;
+
+            // Tailwind color pair utilities
+
+            echo '<h4>Lib 2: Contrast ratios of colors as well as rates the contrast ratio against WCAG standards.</h4><table class="table table-bordered">';
+            $colorsCount = count($palette);
+            $rowCount = 1;
+            foreach ($palette as $item) {
+                for ($i = 0; $i < $colorsCount; $i++) {
+                    $hexColorPair = HexColorPair::make(HexColor::make($item), HexColor::make($palette[$i]));
+                    if ($hexColorPair->ratio >= $ratio) {
+                        echo '<tr>
+                                        <td style="background:' . $hexColorPair->fg->hex . '; width:36px;"></td><td>' . $hexColorPair->fg->hex . '</td>
+                                        <td style="background:' . $hexColorPair->bg->hex . '; width:36px;"></td><td>' . $hexColorPair->bg->hex . '</td>
+                                        <td>Calculated ratio: ' . $hexColorPair->ratio . '</td>
+                                      </tr>';
+
+
+//                    // Get a random accessible sibling for the given color, with minimum specified contrast ratio 4.5
+//                    $color = HexColorPair::minContrast(4.5)->getSibling($palette[$i])->hex;
+//                                    echo '<tr>
+//                                            <td style="background:' . $palette[$i] . '; width:36px;"></td><td>' . $palette[$i] . '</td>
+//                                            <td style="background:' . $color . '; width:36px;"></td><td>' . $color . '</td>
+//                                          </tr>';
+
+                    }
+                }
+            }
 
 
             ?>
