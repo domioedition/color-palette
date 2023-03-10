@@ -157,7 +157,8 @@ $palette = ColorThief::getPalette($sourceImage, $colorsQuantity, 1, null, 'hex')
                     $contrastRatio = new ContrastRatio($primaryColor, $secondaryColor);
                     $rating = new WCAGContrastRating();
                     if($rating->rateContrastRatio($contrastRatio) === WCAGContrastRating::AAA ||
-                        $rating->rateContrastRatio($contrastRatio) === WCAGContrastRating::AA) {
+                        $rating->rateContrastRatio($contrastRatio) === WCAGContrastRating::AA &&
+                        $contrastRatio->getRatio() >= 4.5) {
                         echo '<tr>
                                 <td>' . $rowCount . '</td>
                                 <td style="background:' . $primaryColor->getHex() . '; width:36px;"></td><td>' . $primaryColor->getHex() . '</td>
