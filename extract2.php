@@ -124,6 +124,10 @@ $palette = ColorThief::getPalette($sourceImage, $colorsQuantity, 1, null, 'hex')
             }
             $combinations = $contrast->getCombinations($ratio);
 
+            usort($combinations, function ($a, $b) {
+                if ($a->getContrast() == $b->getContrast()) return 0;
+                return $a->getContrast() < $b->getContrast() ? 1 : -1;
+            });
 
             echo '<table class="table table-hover">';
             foreach ($combinations as $combination) {
